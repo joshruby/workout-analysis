@@ -12,6 +12,13 @@ def load_lottieurl(url: str):
 
     # Workout Analysis
 
-lottie_url = "https://assets5.lottiefiles.com/packages/lf20_V9t630.json"
+# lottie_url = "https://assets7.lottiefiles.com/private_files/lf30_OTKlKD.json"
+lottie_url = 'https://assets7.lottiefiles.com/datafiles/ogIQ10UnwnKiBZS/data.json'
 lottie_json = load_lottieurl(lottie_url)
-st_lottie(lottie_json)
+
+title_col1, title_col2, title_col3 = st.beta_columns([1,0.5,1])
+
+with title_col1:
+    st.markdown('# Workout Analysis')
+with title_col2:
+    st_lottie(st_lottie(lottie_json, height=75))
