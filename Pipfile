@@ -10,6 +10,7 @@ streamlit = "*"
 fitdecode = "*"
 streamlit-lottie = "*"
 requests = "*"
+watchdog = "*"
 
 [requires]
 python_version = "3.8"
