@@ -6,6 +6,8 @@ import json
 import os
 import time
 import pandas as pd
+import scipy as sp
+import altair as alt
 import fitdecode as fd
 
 '### Figure out how to handle the duplicate null speed and distance values from zwift rides and check if the same issue exists for rides uploaded from Wahoo Fitness'
@@ -13,6 +15,8 @@ import fitdecode as fd
 '### Need to look at `data_message`s with names in `[record, activity, event, lap, session]`. Figure out what info is in each one and which names are relevant for Zwift, Wahoo Fitness, and outdoor rides'
 
 '### Figure out how to best handle missing fields and None values'
+
+'### Figure out optimal smoothing params'
 
 def load_lottieurl(url: str):
     r = requests.get(url)
@@ -64,7 +68,10 @@ def df_from_simplfied_ride(simplified_ride):
     units = []
     for field in fields:
         units.append(simplified_ride[30][field]['units'])
-    header = [fields, units]
+    arrays = [fields, units]
+    header_tuples = list(zip(*arrays))
+    # header = [fields, units]
+    header = pd.MultiIndex.from_tuples(header_tuples, names=['Fields','Units'])
     
     field_values = {}
     for field in fields:
@@ -77,7 +84,7 @@ def df_from_simplfied_ride(simplified_ride):
         field_values[field] = values
 
     df = pd.DataFrame.from_dict(field_values)
-    # Add a second header row for units
+    # Add a second header row using MultiIndex for units
     df.columns = header
     
     return df
@@ -102,10 +109,23 @@ if f:
     simplified_ride = record_fields_from_fit(f)
     
 if simplified_ride:
-    simplified_ride_df = df_from_simplfied_ride(simplified_ride)
-    st.write(simplified_ride_df.head())
+    df = df_from_simplfied_ride(simplified_ride)
+    st.write(df.head())
 
+    win_size = 10
+    std = 3
+    df['power_smoothed'] = df['power'].rolling(win_size, win_type='gaussian', center=True).mean(std=std).round()
+    df['heart_rate_smoothed'] = df['heart_rate'].rolling(win_size, win_type='gaussian', center=True).mean(std=std).round()
 
+    c = alt.Chart(df).mark_line().transform_fold(
+        fold=['power', 'power_smoothed'],
+        as_=['category', 'y']
+    ).encode(
+        x='timestamp:T',
+        y='y:Q',
+        color='category:N',
+        ).interactive()
+    st.altair_chart(c, use_container_width=True)
 
 
 
