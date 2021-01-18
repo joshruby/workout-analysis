@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
 import requests
+import pathlib
 import pandas as pd
 import fitdecode as fd
 
