@@ -12,6 +12,8 @@ import fitdecode as fd
 
 '### Need to look at `data_message`s with names in `[record, activity, event, lap, session]`. Figure out what info is in each one and which names are relevant for Zwift, Wahoo Fitness, and outdoor rides'
 
+'### Figure out how to best handle missing fields and None values'
+
 def load_lottieurl(url: str):
     r = requests.get(url)
     if r.status_code != 200:
@@ -67,6 +69,7 @@ if st.button('Inspect JSON(s)'):
             simplified_rides[json_stem] = []
 
             for frame in f_json:
+                # st.write(frame)
                 if frame['frame_type'] == 'data_message' and frame['name'] == 'record':
                     simplified_frame = {}
                     stats_of_interest = [
@@ -89,13 +92,14 @@ if st.button('Inspect JSON(s)'):
                         'temperature'
                     ]
                     for stat in stats_of_interest:
-                        simplified_frame[stat] = {}
                         for field in frame['fields']:
                             if field['name'] == stat:
                                 if field['value'] != None:
-                                    simplified_frame[stat]['value'] = field['value']
-                                    simplified_frame[stat]['units'] = field['units']
+                                    simplified_frame[stat] = {
+                                        'value': field['value'],
+                                        'units': field['units']
+                                    }
                     simplified_frame['chunk'] = frame['chunk']
                     simplified_rides[json_stem].append(simplified_frame)
-            st.write(simplified_rides[json_stem][:4])
-
+            
+            st.write(simplified_rides[json_stem][:2])
