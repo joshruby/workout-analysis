@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "93d10d06ed08c193cc8171a24560ca0ecaebf13dda3deb57b7fcd8c78b72b657"
+            "sha256": "23b3510000ec53b11f994c90bb1cd8a00d7372de9737454a8166ae2e266a31eb"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -28,7 +28,7 @@
                 "sha256:93aa393e9d6c54c5cd570ccadd8edad61ea0c4b9ea7a01409020c9aa019eb442",
                 "sha256:dd83cd4b5b460958838f6eb3000c660b1f9caf2a5b1de4264e941512f603258a"
             ],
-            "markers": "sys_platform == 'darwin'",
+            "markers": "platform_system == 'Darwin'",
             "version": "==0.1.2"
         },
         "argon2-cffi": {
@@ -706,6 +706,14 @@
             ],
             "index": "pypi",
             "version": "==0.74.1"
+        },
+        "streamlit-lottie": {
+            "hashes": [
+                "sha256:2b61a2cc03935eaa9d652af7307dbd3ab3d9ffbab9b69d5e4924292d1e5f5f0b",
+                "sha256:b8bb5c5a5b30e0093b7f670fc1cedeaedb7f9b7ba47b8eb0e0cb3965329389c5"
+            ],
+            "index": "pypi",
+            "version": "==0.0.2"
         },
         "terminado": {
             "hashes": [

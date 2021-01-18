@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 streamlit = "*"
 fitdecode = "*"
+streamlit-lottie = "*"
 
 [requires]
 python_version = "3.8"
