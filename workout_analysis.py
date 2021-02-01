@@ -113,7 +113,7 @@ def df_from_simplfied_ride(simplified_ride):
     return df
 
 # State vars
-session_state = SessionState.get(f=None)
+session_state = SessionState.get(df=None)
 
 # lottie_url = "https://assets7.lottiefiles.com/private_files/lf30_OTKlKD.json"
 lottie_url = 'https://assets7.lottiefiles.com/datafiles/ogIQ10UnwnKiBZS/data.json'
@@ -121,35 +121,35 @@ lottie_json = load_lottieurl(lottie_url)
 
 st_lottie(lottie_json, height=300)
 
-session_state.f = st.file_uploader('Upload a .fit File', type=None, accept_multiple_files=False, key=None)
+f = st.file_uploader('Upload a .fit File', type=None, accept_multiple_files=False, key=None)
 
-simplified_ride = None
-if session_state.f:
-    simplified_ride = record_fields_from_fit(session_state.f)
-    
-if simplified_ride:
-    df = df_from_simplfied_ride(simplified_ride)
-    st.write(df.head())
+# simplified_ride = None
+if f and session_state.df is None:
+    simplified_ride = record_fields_from_fit(f)
+    session_state.df = df_from_simplfied_ride(simplified_ride)
+
+if session_state.df is not None:
+    st.write(session_state.df.head())
 
     # Make a dict of the column tuples where the keys are the first multiIndex label of each pair
-    col_selections = {col_tuple[0]: col_tuple for col_tuple in df.columns}
+    col_selections = {col_tuple[0]: col_tuple for col_tuple in session_state.df.columns}
     
     # Find the index of the timestamp and power fields so they can be set as the default selections of the selectboxes
-    timestamp_index = [col_tuple[0] for col_tuple in df.columns].index('timestamp')
+    timestamp_index = [col_tuple[0] for col_tuple in session_state.df.columns].index('timestamp')
     try:
-        primary_y_index = [col_tuple[0] for col_tuple in df.columns].index('power')
+        primary_y_index = [col_tuple[0] for col_tuple in session_state.df.columns].index('power')
     except:
         try:
-            primary_y_index = [col_tuple[0] for col_tuple in df.columns].index('power')
+            primary_y_index = [col_tuple[0] for col_tuple in session_state.df.columns].index('power')
         except:
            primary_y_index = 1 
     try:
-        secondary_y_index = [col_tuple[0] for col_tuple in df.columns].index('heart_rate')
+        secondary_y_index = [col_tuple[0] for col_tuple in session_state.df.columns].index('heart_rate')
     except:
         try:
-            secondary_y_index = [col_tuple[0] for col_tuple in df.columns].index('heart_rate')
+            secondary_y_index = [col_tuple[0] for col_tuple in session_state.df.columns].index('heart_rate')
         except:
-            secondary_y_index = [col_tuple[0] for col_tuple in df.columns].index('speed')
+            secondary_y_index = [col_tuple[0] for col_tuple in session_state.df.columns].index('speed')
     
     # Use the keys of the dict as simplified selection options in the selectboxes
     # This removes the units from the selection items and makes them simple, clean strings
@@ -174,15 +174,15 @@ if simplified_ride:
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.add_trace(go.Scatter(
-        x=df[x_axis_selection], 
-        y=df[primary_y_axis_selection].rolling(win_size, min_periods=win_size, win_type='gaussian', center=True).mean(std=std).round(),
+        x=session_state.df[x_axis_selection], 
+        y=session_state.df[primary_y_axis_selection].rolling(win_size, min_periods=win_size, win_type='gaussian', center=True).mean(std=std).round(),
         name=primary_y_axis_selection[0]
         ),
         secondary_y=False
     )
     fig.add_trace(go.Scatter(
-        x=df[x_axis_selection], 
-        y=df[secondary_y_axis_selection].rolling(win_size, min_periods=win_size, win_type='gaussian', center=True).mean(std=std).round(),
+        x=session_state.df[x_axis_selection], 
+        y=session_state.df[secondary_y_axis_selection].rolling(win_size, min_periods=win_size, win_type='gaussian', center=True).mean(std=std).round(),
         name=secondary_y_axis_selection[0]
         ),
         secondary_y=True
@@ -195,7 +195,7 @@ if simplified_ride:
     st.plotly_chart(fig, use_container_width=True)
 
 
-    # c = alt.Chart(df).mark_line().transform_fold(
+    # c = alt.Chart(session_state.df).mark_line().transform_fold(
     #     fold=['power', 'power_smoothed_gaus'],
     #     as_=['category', 'y']
     # ).encode(
@@ -205,7 +205,7 @@ if simplified_ride:
     #     ).interactive()
     # st.altair_chart(c, use_container_width=True)
 
-    # c = alt.Chart(df).mark_line().transform_fold(
+    # c = alt.Chart(session_state.df).mark_line().transform_fold(
     #     fold=['power_smoothed_exp'],
     #     as_=['category', 'y']
     # ).encode(
